@@ -8,16 +8,19 @@ var riskColor = d3.scaleLinear()
 	.domain([0.2, 0.4, 0.6, 0.8])
 	.range(["#ffe0b2", "#ffb74d", "#ff9800", "#f57c00"]);
 
-d3.json(city.file, function(data) {
+d3.json(city.crashes, function(data) {
 
 	for (var segment in data.features) {
-		segments.push(data.features[segment].properties);
+		combined = data.features[segment].properties
+		combined.geometry = data.features[segment].geometry
+		segments.push(combined);
 	}
 
 	var midpoint = Math.floor(segments.length/2);
-	var median = segments[midpoint].prediction;
+	var median = segments[midpoint].total_crashes;
+	console.log(median)
 
-	segmentsHash = d3.map(segments, function(d) { return d.segment_id; });
+	segmentsHash = d3.map(segments, function(d) { return d.index; });
 
 	d3.select("#highest_risk_list")
 		.selectAll("li")
@@ -25,9 +28,9 @@ d3.json(city.file, function(data) {
 		.enter()
 		.append("li")
 		.attr("class", "highRiskSegment")
-		.html(function(d) { var nameObj = splitSegmentName(d.segment.display_name);
-							return nameObj["name"] + "<br><span class='secondary'>" + nameObj["secondary"] + "</span>"; })
-		.on("click", function(d) { populateSegmentInfo(d.segment_id); });
+		.html(function(d) { var nameObj = d;
+							return nameObj.xstreet1 + "<br><span class='secondary'>" + nameObj.xstreet2 + "</span>"; })
+		.on("click", function(d) { populateSegmentInfo(d.index); });
 
 	makeBarChart(0, median);
 	// populateFeatureImportancesTbl(data);
@@ -58,15 +61,14 @@ function populateSegmentInfo(segmentID) {
 	// console.log(segmentData);
 
 	d3.select('#segment_details .segment_name')
-		.html(function() { var nameObj = splitSegmentName(segmentData.segment.display_name);
-						   return nameObj["name"] + "<br><span class='secondary'>" + nameObj["secondary"] + "</span>"; })
-		.on("click", function(d) { zoomToSegment(segmentData.segment.center_x, segmentData.segment.center_y); });
+		.html(function() { return segmentData.xstreet1 + "<br><span class='secondary'>" + segmentData.xstreet2 + "</span>"; })
+		.on("click", function(d) { zoomToSegment(segmentData.geometry.coordinates[0], segmentData.geometry.coordinates[1]); });
 
-	d3.select("#segment_details #prediction").text(DECIMALFMT(segmentData.prediction));
-	d3.select("#risk_circle").style("fill", function(d) { return riskColor(segmentData.prediction); });
+	d3.select("#segment_details #prediction").text(DECIMALFMT(segmentData.total_crashes));
+	d3.select("#risk_circle").style("fill", function(d) { return riskColor(segmentData.total_crashes); });
 
 	// update prediction bar chart gauge
-	updateBarChart(segmentData.prediction);
+	updateBarChart(segmentData.total_crashes);
 
 	// update feature importances based on segment's attributes
 	// updateFeatureImportances(segmentData);
@@ -77,7 +79,7 @@ function populateSegmentInfo(segmentID) {
 	d3.select('#highest_risk').classed('visible', false);
 
 	// zoom into clicked-on segment
-	zoomToSegment(segmentData.segment.center_x, segmentData.segment.center_y);
+	zoomToSegment(segmentData.geometry.coordinates[0], segmentData.geometry.coordinates[1]);
 }
 
 function makeBarChart(prediction, median) {
