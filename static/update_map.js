@@ -182,12 +182,6 @@ function update_map(map) {
 	filters = getFilterValues();
 	var new_filter;
     console.log(cityId);
-    if(cityId.includes("boston")) {
-		new_filter = ['all', ['>=', 'prediction', +filters['riskThreshold']], ['>=', 'SPEEDLIMIT', +filters['speedlimit']]];
-	}
-	else {
-		new_filter = ['all', ['>=', 'prediction', +filters['riskThreshold']], ['>=', 'osm_speed', +filters['speedlimit']]];
-	}
-
+	new_filter = ['all', ['>=', 'prediction', +filters['riskThreshold']], ['>=', 'osm_speed', +filters['speedlimit']]];ßß
 	map.setFilter('predictions', new_filter);
 };

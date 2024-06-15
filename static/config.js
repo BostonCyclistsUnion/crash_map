@@ -5,7 +5,7 @@ var config = [
       latitude: 42.3600825,
       longitude: -71.0588801,
       speed_unit: "mph",
-      crashes: "data/crashes_rollup_bike.geojson"
+      crashes: "data/bike_rollup.geojson"
   },
   {
       id: "boston_pedestrian",
@@ -13,7 +13,7 @@ var config = [
       latitude: 42.3600825,
       longitude: -71.0588801,
       speed_unit: "mph",
-      crashes: "data/crashes_rollup_pedestrian.geojson"
+      crashes: "data/ped_rollup.geojson"
   },
   {
       id: "boston_vehicle",
@@ -21,6 +21,6 @@ var config = [
       latitude: 42.3600825,
       longitude: -71.0588801,
       speed_unit: "mph",
-      crashes: "data/crashes_rollup_vehicle.geojson"
-  }
+      crashes: "data/mv_rollup.geojson"
+  },
 ]
