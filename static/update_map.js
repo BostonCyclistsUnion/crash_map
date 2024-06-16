@@ -17,8 +17,6 @@ d3.json(city.crashes, function(data) {
 	}
 
 	var midpoint = Math.floor(segments.length/2);
-	var median = segments[midpoint].total_crashes;
-	console.log(median)
 
 	segmentsHash = d3.map(segments, function(d) { return d.index; });
 
@@ -28,28 +26,21 @@ d3.json(city.crashes, function(data) {
 		.enter()
 		.append("li")
 		.attr("class", "highRiskSegment")
-		.html(function(d) { var nameObj = d;
-							return nameObj.xstreet1 + "<br><span class='secondary'>" + nameObj.xstreet2 + "</span>"; })
+		.html(function(d) { var nameObj = splitSegmentName(d.name);
+							return nameObj['name'] + "<br><span class='secondary'>" + nameObj['secondary'] + "</span>"; })
 		.on("click", function(d) { populateSegmentInfo(d.index); });
 
-	makeBarChart(0, median);
 	// populateFeatureImportancesTbl(data);
 });
 
 function splitSegmentName(segmentName) {
 	var i = segmentName.length;
 
-	if(segmentName.indexOf(" between ") > -1) {
-		i = segmentName.indexOf(" between ");
-	}
-	else if(segmentName.indexOf(" from ") > -1) {
-		i = segmentName.indexOf(" from ");
-	}
-	else if(segmentName.indexOf(" near ") > -1) {
-		i = segmentName.indexOf(" near ");
+	if(segmentName.indexOf(", ") > -1) {
+		i = segmentName.indexOf(", ");
 	}
 
-	return {name: segmentName.slice(0, i), secondary: segmentName.slice(i,)};
+	return {name: segmentName.slice(0, i), secondary: segmentName.slice(i+2,)};
 }
 
 function zoomToSegment(segmentX, segmentY) {
@@ -61,17 +52,12 @@ function populateSegmentInfo(segmentID) {
 	// console.log(segmentData);
 
 	d3.select('#segment_details .segment_name')
-		.html(function() { return segmentData.xstreet1 + "<br><span class='secondary'>" + segmentData.xstreet2 + "</span>"; })
-		.on("click", function(d) { zoomToSegment(segmentData.geometry.coordinates[0], segmentData.geometry.coordinates[1]); });
+		.html(function() { var nameObj = splitSegmentName(segmentData.name);
+						   return nameObj["name"] + "<br><span class='secondary'>" + nameObj["secondary"] + "</span>"; })
+		.on("click", function(d) { zoomToSegment(segmentData.geometry.coordinates[0], segmentData.geometry.coordinates[1])}); 
 
 	d3.select("#segment_details #prediction").text(DECIMALFMT(segmentData.total_crashes));
 	d3.select("#risk_circle").style("fill", function(d) { return riskColor(segmentData.total_crashes); });
-
-	// update prediction bar chart gauge
-	updateBarChart(segmentData.total_crashes);
-
-	// update feature importances based on segment's attributes
-	// updateFeatureImportances(segmentData);
 
 	// hide highest risk panel and slide in segment details panel
 	d3.select('#segment_details').classed('slide_right', false);
