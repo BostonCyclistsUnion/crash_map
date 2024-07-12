@@ -1,4 +1,4 @@
-name: GitHub Actions Demo
+name: update crashes
 run-name: ${{ github.actor }} updating crashes
 on: [push]
 jobs:
