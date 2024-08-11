@@ -13,7 +13,7 @@ def call_api(url):
     print(response.text)
     return None
   
-def collect_records(resource_id, date_field, filename, st, end):
+def collect_records(resource_id, date_field, filename, st_year, end_year):
     """Collect records from the specified resource_id between the start and end dates.
     The records are collected by year to ensure all data is collected.
     
@@ -21,12 +21,11 @@ def collect_records(resource_id, date_field, filename, st, end):
     resource_id (str): the resource id for the dataset
     date_field (str): the field in the dataset that contains the date
     filename (str): the filename to write the data to
-    st (str): the start date in the format 'YYYY-MM-DD'
-    end (str): the end date in the format 'YYYY-MM-DD'"""
+    st_year (int): the start year
+    end_year (int): the end year
+    """ 
 
     collect_records = []
-    st_year = datetime.strptime(st, '%Y-%m-%d').year
-    end_year = datetime.strptime(end, '%Y-%m-%d').year
     for year in range(st_year, end_year+1):
         print(year)
         st_date = f'{year}-01-01'
@@ -57,24 +56,26 @@ resource_dict['crash']['date_field'] = 'dispatch_ts'
 
 # Boston Vision Zero fatality data
 # https://data.boston.gov/dataset/vision-zero-fatality-records/resource/92f18923-d4ec-4c17-9405-4e0da63e1d6c
-resource_dict['fatality'] = {}
-resource_dict['fatality']['resource'] = '92f18923-d4ec-4c17-9405-4e0da63e1d6c'
-resource_dict['fatality']['date_field'] = 'date_time'
+# TODO : not using fatalities at the moment
+# resource_dict['fatality'] = {}
+# resource_dict['fatality']['resource'] = '92f18923-d4ec-4c17-9405-4e0da63e1d6c'
+# resource_dict['fatality']['date_field'] = 'date_time'
 
 # specify the time bounds
-st = '2019-01-01'
+st_year = 2019
 # generate this based on current time
 # want to avoid invalid values, but want this to be robust
-end = datetime.now().strftime('%Y-%m-%d')
+end_year = datetime.now().year
 
 for k in resource_dict:
     resource_id = resource_dict[k]['resource']
     filename = k
     date_field = resource_dict[k]['date_field']
-    collect_records(resource_id, date_field, filename, st, end)
+    collect_records(resource_id, date_field, filename, st_year, end_year)
 
 # read in and process to geojson
-df = gpd.GeoDataFrame(pd.read_csv('data/crash_records.csv'))
+#TODO: currently not looking at fatalities
+df = gpd.GeoDataFrame(pd.read_csv('data/crash.csv'))
 df.set_geometry(gpd.points_from_xy(df.long, df.lat), inplace=True)
 # collect mode types
 mode_types = df['mode_type'].unique()
