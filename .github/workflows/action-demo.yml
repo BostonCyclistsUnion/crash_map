@@ -24,15 +24,15 @@ jobs:
         run: |
           python crash_update.py
       - name: Commit changes
-            if: ${{ success() }}
-            uses: EndBug/add-and-commit@v9
-            with:
-                add: 
-                - "${{ env.CRASH_FILENAME }}"
-                pull: "--rebase --autostash ."
-                message: "chore(generated): update crashes automatically"
-                default_author: github_actions
+        if: ${{ success() }}
+        uses: EndBug/add-and-commit@v9
+        with:
+            add: "${{ env.CRASH_FILENAME }}"
+            pull: "--rebase --autostash ."
+            message: "chore(generated): update crashes automatically"
+            default_author: github_actions
       - name: Upload artifact
-            uses: actions/upload-artifact@v3
-            with:
-                path: $CRASH_FILENAME
+        uses: actions/upload-artifact@v3
+        with:
+            path: $CRASH_FILENAME
+
