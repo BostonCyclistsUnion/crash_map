@@ -63,7 +63,9 @@ resource_dict['fatality']['date_field'] = 'date_time'
 
 # specify the time bounds
 st = '2019-01-01'
-end = '2024-05-01'
+# generate this based on current time
+# want to avoid invalid values, but want this to be robust
+end = datetime.now().strftime('%Y-%m-%d')
 
 for k in resource_dict:
     resource_id = resource_dict[k]['resource']

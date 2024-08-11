@@ -4,7 +4,7 @@ on: [push]
 env:
     CRASH_FILENAME: "./data/bike_rollup.geojson"
 jobs:
-  Explore-GitHub-Actions:
+  update-crashes:
     runs-on: ubuntu-latest
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
