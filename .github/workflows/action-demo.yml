@@ -1,6 +1,8 @@
 name: update crashes
 run-name: ${{ github.actor }} updating crashes
 on: [push]
+env:
+    CRASH_FILENAME: "./data/bike_rollup.geojson"
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
@@ -21,4 +23,16 @@ jobs:
       - name: update data
         run: |
           python crash_update.py
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+      - name: Commit changes
+            if: ${{ success() }}
+            uses: EndBug/add-and-commit@v9
+            with:
+                add: 
+                - "${{ env.CRASH_FILENAME }}"
+                pull: "--rebase --autostash ."
+                message: "chore(generated): update crashes automatically"
+                default_author: github_actions
+      - name: Upload artifact
+            uses: actions/upload-artifact@v3
+            with:
+                path: $CRASH_FILENAME
