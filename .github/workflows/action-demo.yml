@@ -1,6 +1,9 @@
 name: update crashes
 run-name: ${{ github.actor }} updating crashes
-on: [push]
+on:
+  workflow_dispatch:
+  schedule:
+      - cron: "0 0 * * 1" # https://crontab.guru/every-quarter
 env:
     BIKE_CRASH_FILENAME: "./data/bike_rollup.geojson"
     PED_CRASH_FILENAME: "./data/ped_rollup.geojson"
