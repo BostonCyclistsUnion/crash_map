@@ -1,0 +1,43 @@
+name: update crashes
+run-name: ${{ github.actor }} updating crashes
+on:
+  workflow_dispatch:
+  schedule:
+      - cron: "0 0 * * 1" # https://crontab.guru/every-quarter
+env:
+    BIKE_CRASH_FILENAME: "./data/bike_rollup.geojson"
+    PED_CRASH_FILENAME: "./data/ped_rollup.geojson"
+    MV_CRASH_FILENAME: "./data/mv_rollup.geojson"
+jobs:
+  update-crashes:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: update data
+        run: |
+          python crash_update.py
+      - name: Commit changes
+        if: ${{ success() }}
+        uses: EndBug/add-and-commit@v9
+        with:
+            add: "${{ env.BIKE_CRASH_FILENAME }} ${{ env.PED_CRASH_FILENAME }} ${{ env.MV_CRASH_FILENAME }}"
+            pull: "--rebase --autostash ."
+            message: "chore(generated): update crashes automatically"
+            default_author: github_actions
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+            path: "${{ env.BIKE_CRASH_FILENAME }} ${{ env.PED_CRASH_FILENAME }} ${{ env.MV_CRASH_FILENAME }}"
+
